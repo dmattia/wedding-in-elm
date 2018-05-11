@@ -1,0 +1,25 @@
+{
+  "name": "elm-wedding",
+  "version": "1.0.0",
+  "description": "rewrite of davidandbri.com in elm",
+  "main": "src/index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "elm-app test",
+    "style": "stylus -w src/style/main.styl -o src/main.css"
+  },
+  "keywords": [
+    "elm",
+    "wedding"
+  ],
+  "author": "dmattia",
+  "license": "MIT",
+  "dependencies": {
+    "elm-css": "^0.6.1",
+    "firebase": "^4.13.1",
+    "materialize-css": "^1.0.0-rc.1",
+    "stylus": "^0.54.5"
+  }
+}

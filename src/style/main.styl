@@ -1,0 +1,96 @@
+@import theme
+@import party
+@import navbar
+
+html
+  font-family "Times New Roman", serif !important
+  color darkColor
+  background-color lightColor
+
+.container
+  margin-top 30px
+
+.gm-style .gm-style-iw
+  color darkColor
+
+a
+  color lightColor
+
+textarea:focus
+  border-color color !important
+  box-shadow none
+
+.input-field input
+  color darkColor !important
+  font-family font, serif
+
+.input-field label
+  color darkColor !important
+
+.input-field input:focus + label
+  color darkColor !important
+
+.input-field input:focus
+  border-bottom 1px solid darkColor !important
+  box-shadow 0 1px 0 0 darkColor !important
+
+@-webkit-keyframes autofill
+  to
+    color darkColor
+    background transparent
+
+input:-webkit-autofill
+  -webkit-animation-name autofill
+  -webkit-animation-fill-mode both
+
+[type="checkbox"] + span:not(.lever):before, [type="checkbox"]:not(.filled-in) + span:not(.lever):after
+  border 2px solid darkColor
+  background transparent
+
+[type="checkbox"]:checked + span:not(.lever):before, [type="checkbox"]:not(.filled-in) + span:not(.lever):after
+  border 2px solid transparent
+  border-bottom 2px solid darkColor
+  border-right 2px solid darkColor
+  background transparent
+
+.guest-form
+  border 2px solid darkColor
+  padding 10px
+
+.row
+  margin-left 0
+  margin-right 0
+
+.caret
+  fill darkColor !important
+
+.dropdown-content li > span
+  color darkColor
+
+.flow-text
+  line-height 1.7
+  font-size 1.7em
+  font-weight 400
+
+.header
+  font-size 2.1em
+  font-weight 700
+
+label
+  font-size 1.4em !important
+
+.italics
+  font-style italic !important
+  letter-spacing 0.1em
+
+.main-color
+  color darkColor
+
+.reverse-color
+  color lightColor
+
+.main-bg
+  background-color lightColor
+
+.reverse-bg
+  background-color darkColor

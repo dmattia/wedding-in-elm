@@ -1,13 +1,24 @@
-module Data.Content exposing (Content)
+module Data.Content exposing (Model, decoder)
 
-import Data.Event as Event exposing (Event)
-import Data.PartyMember as PartyMember exposing (PartyMember)
-import Data.Registry as Registry exposing (Registry)
-import Data.Travel as Travel exposing (Travel)
+import Data.Event as Event
+import Data.PartyMember as PartyMember
+import Data.Registry as Registry
+import Data.Travel as Travel
 
-type alias Content =
-  { events: List Event
-  , party: List PartyMember
-  , registry: Registry
-  , travel: Travel
+import Json.Decode as Decode exposing (Decoder)
+import Json.Decode.Pipeline exposing (decode, required)
+
+type alias Model =
+  { events: List Event.Model
+  , party: List PartyMember.Model
+  , registry: Registry.Model
+  , travel: Travel.Model
   }
+
+decoder : Decoder Model
+decoder =
+  decode Model
+    |> required "events" (Decode.list Event.decoder)
+    |> required "party" (Decode.list PartyMember.decoder)
+    |> required "registry" Registry.decoder
+    |> required "travel" Travel.decoder

@@ -1,5 +1,5 @@
 port module Ports exposing (onContentFetch)
 
-import Data.Content as Content exposing (Content)
+import Json.Encode exposing (Value)
 
-port onContentFetch : (Content -> msg) -> Sub msg
+port onContentFetch : (Value -> msg) -> Sub msg

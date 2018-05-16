@@ -3,10 +3,10 @@ module Pages.Travel exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Material exposing (inRow)
-import Data.Travel as Model
+import Data.Travel as Travel
 import UI
 
-view : Model.Travel -> Html msg
+view : Travel.Model -> Html msg
 view model =
   div []
     [ section model.hotelTitle model.hotelCaption

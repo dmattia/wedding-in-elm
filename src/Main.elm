@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (Html, text, div, h1, img, span, hr)
 import Html.Attributes
-import Data.Content as Content exposing (Content)
+import Data.Content as Content exposing (Model)
 import Json.Decode as Decode exposing (Value)
 import Navigation exposing (Location)
 import Ports
@@ -20,7 +20,7 @@ import Views.Header
 import Material as Material exposing (openSideNav, inContainer)
 
 type alias Model =
-  { content: Maybe Content
+  { content: Maybe Content.Model
   , page: Page
   }
 
@@ -32,7 +32,12 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
     SetContent content ->
-      { model | content = Just content } ! []
+      case content of
+        Nothing ->
+          model ! []
+
+        Just someContent ->  
+          { model | content = Just someContent } ! []
 
     SetRoute route ->
       setRoute route model ! []
@@ -86,7 +91,7 @@ view model =
         [ h1 [] [ text "Loading..." ]
         ]
 
-viewPageContent : Page -> Content -> Html Msg
+viewPageContent : Page -> Content.Model -> Html Msg
 viewPageContent page content =
   case page of
     Home -> Pages.Home.view
@@ -114,4 +119,8 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Ports.onContentFetch SetContent
+  Sub.map SetContent contentChange
+
+contentChange : Sub (Maybe Content.Model)
+contentChange =
+  Ports.onContentFetch (Decode.decodeValue Content.decoder >> Result.toMaybe)

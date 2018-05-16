@@ -3,18 +3,18 @@ module Pages.Party exposing (view)
 import Html exposing (Html, div, img, p, text)
 import Html.Attributes exposing (class, src)
 import Material exposing (inRow)
-import Data.PartyMember as Model
+import Data.PartyMember as PartyMember
 import UI
 
-view : List Model.PartyMember -> Html msg
+view : List PartyMember.Model -> Html msg
 view members =
   div [ class "party" ] 
     <| [ inRow <| List.map viewMember members ]
 
-viewMember : Model.PartyMember -> Html msg
+viewMember : PartyMember.Model -> Html msg
 viewMember member =
   div [ class "col s12 m4 person" ]
-    [ inRow [ fittedImage member.image ]
+    [ inRow [ fittedImage member.imageUrl ]
     , div [ class "center" ]
       [ UI.flowText member.name
       , p [] [ text member.title ]

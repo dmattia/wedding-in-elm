@@ -1,0 +1,18 @@
+path / {
+  read() { false }
+  write() { false }
+}
+
+path /content {
+  read() { true }
+}
+
+path /recipes/{id} is Recipe {
+  write() { true }
+}
+
+type Recipe {
+  names: String,
+  recipe_name: String,
+  urls: String[]
+}

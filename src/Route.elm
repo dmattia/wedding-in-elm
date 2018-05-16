@@ -44,4 +44,7 @@ href route =
 
 fromLocation : Location -> Maybe Route
 fromLocation location =
-    parseHash route location
+    if String.isEmpty location.hash then
+        Just Home
+    else
+        parseHash route location

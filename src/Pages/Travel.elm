@@ -2,12 +2,21 @@ module Pages.Travel exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (class)
-import Material exposing (inRow)
 import Data.Travel as Travel
+import Material exposing (spinner)
 import UI
 
-view : Travel.Model -> Html msg
+view : Maybe Travel.Model -> Html msg
 view model =
+  case model of
+    Just info ->
+      withContentView info
+
+    Nothing ->
+      spinner
+
+withContentView : Travel.Model -> Html msg
+withContentView model =
   div []
     [ section model.hotelTitle model.hotelCaption
     , UI.wideLink model.bookingLink "Book now"

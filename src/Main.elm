@@ -76,32 +76,28 @@ setRoute maybeRoute model =
 
 view : Model -> Html Msg
 view model =
-  case model.content of
-    Just content ->
-      div []
-        [ Views.Header.view
-        , hr [] []
-        , Views.Navbar.view model.page
-        , hr [] []
-        , inContainer <| [ viewPageContent model.page content ]
-        ]
+  div []
+    [ Views.Header.view
+    , hr [] []
+    , Views.Navbar.view model.page
+    , hr [] []
+    , inContainer <| [ viewPageContent model.page model.content ]
+    ]
 
-    Nothing ->
-      div []
-        [ h1 [] [ text "Loading..." ]
-        ]
-
-viewPageContent : Page -> Content.Model -> Html Msg
+viewPageContent : Page -> Maybe Content.Model -> Html Msg
 viewPageContent page content =
   case page of
-    Home -> Pages.Home.view
-      |> Html.map HomeMsg 
+    Home ->
+      Pages.Home.view |> Html.map HomeMsg 
 
-    Travel -> Pages.Travel.view content.travel
+    Travel ->
+      Pages.Travel.view <| Maybe.map .travel content
 
-    Registry -> Pages.Registry.view content.registry
+    Registry ->
+      Pages.Registry.view <| Maybe.map .registry content
 
-    Party -> Pages.Party.view content.party
+    Party ->
+      Pages.Party.view <| Maybe.map .party content
 
     _ ->
       div []

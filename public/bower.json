@@ -1,0 +1,21 @@
+{
+  "name": "Wedding website",
+  "homepage": "https://github.com/dmattia/wedding-in-elm",
+  "authors": [
+    "dmattia <dmattia@nd.edu>"
+  ],
+  "description": "wedding website made in elm",
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "google-map": "GoogleWebComponents/google-map#^2.0.4"
+  }
+}

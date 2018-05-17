@@ -1,4 +1,4 @@
-module Data.Event exposing (Model, decoder)
+module Data.Event exposing (Model, decoder, findCenter, Position, MapMarker)
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (decode, required)
@@ -23,6 +23,16 @@ type alias Position =
   { lat: Float
   , lng: Float
   }
+
+-- TODO: check if len is 0
+findCenter : List Position -> Position
+findCenter positions =
+  let
+    len = toFloat <| List.length positions
+  in 
+    { lat = List.sum (List.map .lat positions) / len
+    , lng = List.sum (List.map .lng positions) / len
+    }
 
 decoder : Decoder Model
 decoder =

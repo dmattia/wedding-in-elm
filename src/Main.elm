@@ -14,6 +14,7 @@ import Pages.Home
 import Pages.Travel
 import Pages.Registry
 import Pages.Party
+import Pages.Events
 
 import Views.Navbar
 import Views.Header
@@ -44,6 +45,9 @@ update msg model =
 
     OpenSideNav ->
       model ! [ openSideNav () ]
+
+    EventsMsg msg ->
+      model ! []
 
     HomeMsg msg ->
       model ! [ Pages.Home.update msg |> Cmd.map HomeMsg ]
@@ -88,16 +92,20 @@ viewPageContent : Page -> Maybe Content.Model -> Html Msg
 viewPageContent page content =
   case page of
     Home ->
-      Pages.Home.view |> Html.map HomeMsg 
-
+      Html.map HomeMsg Pages.Home.view 
+ 
     Travel ->
-      Pages.Travel.view <| Maybe.map .travel content
+      Pages.Travel.view (Maybe.map .travel content)
 
     Registry ->
-      Pages.Registry.view <| Maybe.map .registry content
+      Pages.Registry.view (Maybe.map .registry content)
 
     Party ->
-      Pages.Party.view <| Maybe.map .party content
+      Pages.Party.view (Maybe.map .party content)
+
+    Events ->
+      Pages.Events.view (Maybe.map .events content)
+        |> Html.map EventsMsg
 
     _ ->
       div []

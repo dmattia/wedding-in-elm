@@ -1,130 +1,174 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, img, span, hr)
-import Html.Attributes
+import Browser exposing (Page)
+import Browser.Navigation
 import Data.Content as Content exposing (Model)
+import Data.Msg exposing (Msg(..))
+import Data.Pages exposing (CurrentPage(..))
+import Html exposing (Html, div, h1, hr, img, span, text)
+import Html.Attributes
 import Json.Decode as Decode exposing (Value)
-import Navigation exposing (Location)
+import Material as Material exposing (inContainer, initMaterialSelects, openSideNav)
+import Pages.Events
+import Pages.Home
+import Pages.Party
+import Pages.Registry
+import Pages.Rsvp
+import Pages.Travel
 import Ports
 import Route exposing (Route)
-
-import Data.Msg exposing (Msg(..))
-import Data.Pages exposing (Page(..))
-import Pages.Home
-import Pages.Travel
-import Pages.Registry
-import Pages.Party
-import Pages.Events
-
-import Views.Navbar
+import Url exposing (Url)
 import Views.Header
-import Material as Material exposing (openSideNav, inContainer)
+import Views.Navbar
+
 
 type alias Model =
-  { content: Maybe Content.Model
-  , page: Page
-  }
+    { content : Maybe Content.Model
+    , page : CurrentPage
+    }
 
-init : Location -> ( Model, Cmd Msg )
-init location =
-  setRoute (Route.fromLocation location) (Model Nothing Blank) ! []
+
+init : Browser.Env Value -> ( Model, Cmd Msg )
+init { url, flags } =
+    setRoute (Route.fromUrl url) (Model Nothing Blank)
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    SetContent content ->
-      case content of
-        Nothing ->
-          model ! []
+    case ( msg, model.page ) of
+        ( SetContent content, _ ) ->
+            case content of
+                Nothing ->
+                    ( model, Cmd.none )
 
-        Just someContent ->  
-          { model | content = Just someContent } ! []
+                Just someContent ->
+                    ( { model | content = Just someContent }
+                    , Cmd.none
+                    )
 
-    SetRoute route ->
-      setRoute route model ! []
+        ( SetRoute route, _ ) ->
+            setRoute route model
 
-    OpenSideNav ->
-      model ! [ openSideNav () ]
+        ( OpenSideNav, _ ) ->
+            ( model, openSideNav () )
 
-    EventsMsg msg ->
-      model ! []
+        ( EventsMsg eventMsg, Events ) ->
+            ( model, Cmd.none )
 
-    HomeMsg msg ->
-      model ! [ Pages.Home.update msg |> Cmd.map HomeMsg ]
+        ( HomeMsg homeMsg, Home ) ->
+            ( model, Pages.Home.update homeMsg |> Cmd.map HomeMsg )
 
-setRoute : Maybe Route -> Model -> Model
+        ( RsvpMsg rsvpMsg, Rsvp rsvpModel ) ->
+            let
+                ( newRsvpModel, cmd ) =
+                    Pages.Rsvp.update rsvpMsg rsvpModel
+            in
+            ( { model | page = Rsvp newRsvpModel }
+            , Cmd.map RsvpMsg cmd
+            )
+
+        ( _, _ ) ->
+            -- Disregard messages belonging to the incorrect page
+            ( model, Cmd.none )
+
+
+setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
-  case maybeRoute of
-    Nothing ->
-      { model | page = NotFound }
-  
-    Just route ->
-      case route of
-        Route.Home ->
-          { model | page = Home }
+    case maybeRoute of
+        Nothing ->
+            ( { model | page = NotFound }, Cmd.none )
 
-        Route.Events ->
-          { model | page = Events }
+        Just route ->
+            case route of
+                Route.Home ->
+                    ( { model | page = Home }, Cmd.none )
 
-        Route.Travel ->
-          { model | page = Travel }
+                Route.Events ->
+                    ( { model | page = Events }, Cmd.none )
 
-        Route.Rsvp ->
-          { model | page = Rsvp }
+                Route.Travel ->
+                    ( { model | page = Travel }, Cmd.none )
 
-        Route.Party ->
-          { model | page = Party }
+                Route.Rsvp ->
+                    --( { model | page = Rsvp Pages.Rsvp.initialModel }, Cmd.none )
+                    ( { model | page = Rsvp Pages.Rsvp.initialModel }, initMaterialSelects "all" )
 
-        Route.Registry ->
-          { model | page = Registry }
+                Route.Party ->
+                    ( { model | page = Party }, Cmd.none )
 
-view : Model -> Html Msg
+                Route.Registry ->
+                    ( { model | page = Registry }, Cmd.none )
+
+
+view : Model -> Page Msg
 view model =
-  div []
-    [ Views.Header.view
-    , hr [] []
-    , Views.Navbar.view model.page
-    , hr [] []
-    , inContainer <| [ viewPageContent model.page model.content ]
-    ]
+    Page "Some title" <| [ viewHtml model ]
 
-viewPageContent : Page -> Maybe Content.Model -> Html Msg
-viewPageContent page content =
-  case page of
-    Home ->
-      Html.map HomeMsg Pages.Home.view 
- 
-    Travel ->
-      Pages.Travel.view (Maybe.map .travel content)
 
-    Registry ->
-      Pages.Registry.view (Maybe.map .registry content)
-
-    Party ->
-      Pages.Party.view (Maybe.map .party content)
-
-    Events ->
-      Pages.Events.view (Maybe.map .events content)
-        |> Html.map EventsMsg
-
-    _ ->
-      div []
-        [ h1 [] [ text "some text for a page not in viewPageContent" ]
+viewHtml : Model -> Html Msg
+viewHtml model =
+    div []
+        [ Views.Header.view
+        , hr [] []
+        , Views.Navbar.view model.page
+        , hr [] []
+        , inContainer <| [ viewPageContent model.page model.content ]
         ]
 
-main : Program Never Model Msg
+
+viewPageContent : CurrentPage -> Maybe Content.Model -> Html Msg
+viewPageContent page content =
+    case ( page, content ) of
+        ( Home, _ ) ->
+            Html.map HomeMsg Pages.Home.view
+
+        ( Travel, Just context ) ->
+            Pages.Travel.view context.travel
+
+        ( Registry, Just context ) ->
+            Pages.Registry.view context.registry
+
+        ( Party, Just context ) ->
+            Pages.Party.view context.party
+
+        ( Events, Just context ) ->
+            Pages.Events.view context.events
+                |> Html.map EventsMsg
+
+        ( Rsvp rsvpModel, _ ) ->
+            Html.map RsvpMsg <| Pages.Rsvp.view rsvpModel
+
+        ( Blank, _ ) ->
+            text "Blank pages don't have content"
+
+        ( NotFound, _ ) ->
+            text "Route not found"
+
+        ( _, Nothing ) ->
+            Material.spinner
+
+
+main : Program Value Model Msg
 main =
-    Navigation.program (Route.fromLocation >> SetRoute)
+    Browser.fullscreen
         { init = init
-        , view = view
-        , update = update
+        , onNavigation = Just onNavigation
         , subscriptions = subscriptions
+        , update = update
+        , view = view
         }
+
+
+onNavigation : Url -> Msg
+onNavigation url =
+    SetRoute (Route.fromUrl url)
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Sub.map SetContent contentChange
+    Sub.map SetContent contentChange
+
 
 contentChange : Sub (Maybe Content.Model)
 contentChange =
-  Ports.onContentFetch (Decode.decodeValue Content.decoder >> Result.toMaybe)
+    Ports.onContentFetch (Decode.decodeValue Content.decoder >> Result.toMaybe)

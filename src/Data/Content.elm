@@ -6,7 +6,7 @@ import Data.Registry as Registry
 import Data.Travel as Travel
 
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (required)
 
 type alias Model =
   { events: List Event.Model
@@ -17,7 +17,7 @@ type alias Model =
 
 decoder : Decoder Model
 decoder =
-  decode Model
+  Decode.succeed Model
     |> required "events" (Decode.list Event.decoder)
     |> required "party" (Decode.list PartyMember.decoder)
     |> required "registry" Registry.decoder

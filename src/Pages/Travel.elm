@@ -6,17 +6,8 @@ import Data.Travel as Travel
 import Material exposing (spinner)
 import UI
 
-view : Maybe Travel.Model -> Html msg
+view : Travel.Model -> Html msg
 view model =
-  case model of
-    Just info ->
-      withContentView info
-
-    Nothing ->
-      spinner
-
-withContentView : Travel.Model -> Html msg
-withContentView model =
   div []
     [ section model.hotelTitle model.hotelCaption
     , UI.wideLink model.bookingLink "Book now"

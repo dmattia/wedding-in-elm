@@ -4,27 +4,31 @@ const startMaterial = ports => {
   let navbar;
 
   ports.openSideNav.subscribe(() => {
-    getMaterialComponent('.sidenav', M.Sidenav).open();
+    getInitializedMaterialComponent('.sidenav', M.Sidenav).open();
   });
 
-  ports.materialBox.subscribe(imageId => {
-    getMaterialComponent(`#${imageId}`, M.Materialbox).open();
+  ports.initMaterialSelects.subscribe(text => {
+    getInitializedMaterialComponent('select', M.FormSelect);
+  });
+
+  ports.toast.subscribe(html => {
+    M.toast({html});
   });
 };
 
-const getMaterialComponent = (selectorString, materialComponent) => {
-  const elem = document.querySelector(selectorString);
+const getInitializedMaterialComponent = (selectorString, materialComponent) => {
+  const elems = document.querySelectorAll(selectorString);
 
-  const component = materialComponent.getInstance(elem);
+  const component = materialComponent.getInstance(elems);
   if (!!component) {
     return component;
   }
 
-  return materialComponent.init(elem);
+  return materialComponent.init(elems);
 }
 
 window.onhashchange = () => {
-  getMaterialComponent('.sidenav', M.Sidenav).close();
+  getInitializedMaterialComponent('.sidenav', M.Sidenav).close();
 }
 
 export default startMaterial;

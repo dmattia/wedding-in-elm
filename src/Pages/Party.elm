@@ -6,17 +6,8 @@ import Material exposing (inRow, spinner)
 import Data.PartyMember as PartyMember
 import UI
 
-view : Maybe (List PartyMember.Model) -> Html msg
-view model =
-  case model of
-    Just members ->
-      viewMembers members
-
-    Nothing ->
-      spinner
-
-viewMembers : List PartyMember.Model -> Html msg
-viewMembers members =
+view : List PartyMember.Model -> Html msg
+view members =
   div [ class "party" ] 
     <| [ inRow <| List.map viewMember members ]
 

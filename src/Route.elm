@@ -1,9 +1,9 @@
-module Route exposing (Route(..), fromLocation, href)
+module Route exposing (Route(..), fromUrl, href)
 
 import Html exposing (Attribute)
 import Html.Attributes as Attr
-import Navigation exposing (Location)
-import UrlParser as Url exposing (Parser, oneOf, parseHash, s)
+import Url exposing (Url)
+import Url.Parser as UrlParser exposing (Parser, oneOf, s, top)
 
 type Route
   = Home
@@ -16,12 +16,12 @@ type Route
 route : Parser (Route -> a) a
 route =
     oneOf
-        [ Url.map Home (s "")
-        , Url.map Events (s "events")
-        , Url.map Travel (s "travel")
-        , Url.map Rsvp (s "rsvp")
-        , Url.map Party (s "party")
-        , Url.map Registry (s "registry")
+        [ UrlParser.map Home top
+        , UrlParser.map Events (s "events")
+        , UrlParser.map Travel (s "travel")
+        , UrlParser.map Rsvp (s "rsvp")
+        , UrlParser.map Party (s "party")
+        , UrlParser.map Registry (s "registry")
         ]
 
 routeToString : Route -> String
@@ -36,15 +36,12 @@ routeToString page =
                 Party -> "party"
                 Registry -> "registry"
     in
-    "#/" ++ url
+    "/" ++ url
 
 href : Route -> Attribute msg
-href route =
-    Attr.href (routeToString route)
+href targetRoute =
+    Attr.href (routeToString targetRoute)
 
-fromLocation : Location -> Maybe Route
-fromLocation location =
-    if String.isEmpty location.hash then
-        Just Home
-    else
-        parseHash route location
+fromUrl : Url -> Maybe Route
+fromUrl url =
+  UrlParser.parse route url

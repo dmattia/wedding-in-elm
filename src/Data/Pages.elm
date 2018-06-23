@@ -1,11 +1,13 @@
-module Data.Pages exposing (Page(..))
+module Data.Pages exposing (CurrentPage(..))
 
-type Page
+import Pages.Rsvp exposing (Model)
+
+type CurrentPage
   = Blank
   | Home
   | Events
   | Party
   | Registry
-  | Rsvp
+  | Rsvp Pages.Rsvp.Model
   | Travel
   | NotFound

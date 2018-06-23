@@ -3,16 +3,17 @@ module Views.Navbar exposing (view)
 import Html exposing (Html, h5, h4, p, text, div, i, button, ul, li, a, nav, hr)
 import Html.Attributes exposing (class, classList, id)
 import Html.Events exposing (onClick)
-import Css exposing (..)
-import Data.Pages as Page exposing (Page(..))
+import Data.Pages as Page exposing (CurrentPage(..))
 import Data.Msg exposing (Msg(..))
 import Route exposing (Route)
+
+import Pages.Rsvp exposing (initialModel)
 
 type LinkType
   = Wide
   | Narrow
 
-view: Page -> Html Msg
+view: CurrentPage -> Html Msg
 view currentPage =
   div [ class "navbar" ]
     [ nav [ class "transparent" ]
@@ -27,22 +28,34 @@ view currentPage =
     , ul [ class "sidenav" ] <| linkHtml currentPage Wide
     ]
 
-linkHtml : Page -> LinkType -> List (Html Msg)
+linkHtml : CurrentPage -> LinkType -> List (Html Msg)
 linkHtml currentPage linkType =
   List.map (linkToHtml currentPage linkType) links
 
-links : List (Route, String, Page)
+links : List (Route, String)
 links =
-  [ (Route.Home, "Home", Page.Home)
-  , (Route.Events, "Events", Page.Events)
-  , (Route.Travel, "Travel", Page.Travel)
-  , (Route.Rsvp, "RSVP", Page.Rsvp)
-  , (Route.Party, "Wedding Party", Page.Party)
-  , (Route.Registry, "Registry", Page.Registry)
+  [ (Route.Home, "Home")
+  , (Route.Events, "Events")
+  , (Route.Travel, "Travel")
+  , (Route.Rsvp, "RSVP")
+  , (Route.Party, "Wedding Party")
+  , (Route.Registry, "Registry")
   ]
 
-linkToHtml : Page -> LinkType -> (Route, String, Page) -> Html Msg
-linkToHtml currentPage linkType (route, title, page) =
-  li [ classList [("active", currentPage == page), ("wide", linkType == Wide)] ]
+pageMatchesRoute : CurrentPage -> Route -> Bool
+pageMatchesRoute page route =
+  case page of 
+    Page.Home -> route == Route.Home
+    Page.Events -> route == Route.Events
+    Page.Travel -> route == Route.Travel
+    Page.Rsvp _ -> route == Route.Rsvp
+    Page.Party -> route == Route.Party
+    Page.Registry -> route == Route.Registry
+    Page.Blank -> False
+    Page.NotFound -> False
+
+linkToHtml : CurrentPage -> LinkType -> (Route, String) -> Html Msg
+linkToHtml currentPage linkType (route, title) =
+  li [ classList [("active", pageMatchesRoute currentPage route), ("wide", linkType == Wide)] ]
     [ a [ class "flow-text", Route.href route ] [ text title ]
     ]

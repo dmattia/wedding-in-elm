@@ -1,8 +1,8 @@
-module UI exposing (wideLink, flowText, rawHtml)
+module UI exposing (wideLink, flowText)
 
 import Html exposing (Html, a, text, div, p, span)
 import Html.Attributes exposing (class, href, property)
-import Json.Encode
+import Json.Encode exposing (string)
 
 wideLink : String -> String -> Html msg
 wideLink link textContent =
@@ -16,10 +16,3 @@ wideLink link textContent =
 flowText : String -> Html msg
 flowText textContent =
   p [ class "flow-text" ] [ text textContent ]
-
-rawHtml : String -> Html msg
-rawHtml html =
-  span
-    [ Json.Encode.string html |> property "innerHTML"
-    ] 
-    []

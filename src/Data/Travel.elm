@@ -1,7 +1,7 @@
 module Data.Travel exposing (Model, decoder)
 
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (required)
 
 type alias Model =
   { bookingLink: String
@@ -13,7 +13,7 @@ type alias Model =
 
 decoder : Decoder Model
 decoder =
-  decode Model
+  Decode.succeed Model
     |> required "bookingLink" Decode.string
     |> required "hotelCaption" Decode.string
     |> required "hotelTitle" Decode.string

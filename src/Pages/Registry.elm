@@ -1,22 +1,13 @@
 module Pages.Registry exposing (view)
 
-import Html exposing (Html, div, p)
+import Html exposing (Html, div, p, text, br)
 import Html.Attributes exposing (class)
 import Material exposing (inRow, spinner)
 import Data.Registry as Registry
 import UI
 
-view : Maybe Registry.Model -> Html msg
+view : Registry.Model -> Html msg
 view model =
-  case model of
-    Just info ->
-      withContentView info
-
-    Nothing ->
-      spinner
-
-withContentView : Registry.Model -> Html msg
-withContentView model =
   div []
     [ viewSection model.ronaldMcDonaldHouse
     , viewSection model.amazon
@@ -25,6 +16,10 @@ withContentView model =
 viewSection : Registry.Section -> Html msg
 viewSection section =
   div []
-    [ p [ class "flow-text" ] [ UI.rawHtml section.text ]
+    [ div [] <| List.map flowyParagraph section.paragraphs
     , UI.wideLink section.link section.linkText
     ]
+
+flowyParagraph : String -> Html msg
+flowyParagraph content =
+  p [ class "flow-text" ] [ text content ]

@@ -1,7 +1,7 @@
 module Data.Event exposing (Model, decoder, findCenter, Position, MapMarker)
 
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (required)
 
 type alias Model =
   { address: String
@@ -36,7 +36,7 @@ findCenter positions =
 
 decoder : Decoder Model
 decoder =
-  decode Model
+  Decode.succeed Model
     |> required "address" Decode.string
     |> required "directionsLink" Decode.string
     |> required "location" Decode.string
@@ -46,7 +46,7 @@ decoder =
 
 mapMarkerDecoder : Decoder MapMarker
 mapMarkerDecoder =
-  decode MapMarker
+  Decode.succeed MapMarker
     |> required "icon" Decode.string
     |> required "infoText" Decode.string
     |> required "position" positionDecoder
@@ -54,6 +54,6 @@ mapMarkerDecoder =
 
 positionDecoder : Decoder Position
 positionDecoder =
-  decode Position
+  Decode.succeed Position
     |> required "lat" Decode.float
     |> required "lng" Decode.float

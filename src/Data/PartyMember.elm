@@ -1,7 +1,7 @@
 module Data.PartyMember exposing (Model, decoder)
 
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (required)
 
 type alias Model =
   { imageUrl: String
@@ -11,7 +11,7 @@ type alias Model =
 
 decoder : Decoder Model
 decoder =
-  decode Model
+  Decode.succeed Model
     |> required "image" Decode.string
     |> required "name" Decode.string
     |> required "title" Decode.string

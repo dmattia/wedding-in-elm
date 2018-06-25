@@ -5,7 +5,6 @@ import Html.Attributes exposing (alt, attribute, class, classList, disabled, for
 import Html.Events exposing (on, onClick, onInput, targetValue)
 import Html.Keyed as Keyed
 import Json.Decode as Json exposing (Decoder)
-import List.Extra exposing (removeAt, updateAt)
 import Material exposing (inRow, initMaterialSelects, toast)
 
 
@@ -210,6 +209,23 @@ removeEntry : Int -> Model -> Model
 removeEntry index model =
     model
         |> setRsvps (removeAt index model.rsvps)
+
+
+removeAt : Int -> List a -> List a
+removeAt i xs =
+    List.take i xs ++ List.drop (i + 1) xs
+
+
+updateAt : Int -> (a -> a) -> List a -> List a
+updateAt index func xs =
+    let
+        updateIfIndex i elem =
+            if i == index then
+                func elem
+            else
+                elem
+    in
+    List.indexedMap updateIfIndex xs
 
 
 incrementNextEntryId : Model -> Model

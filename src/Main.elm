@@ -1,13 +1,15 @@
 module Main exposing (..)
 
-import Browser exposing (Page)
-import Browser.Navigation
+import Browser exposing (Document, UrlRequest(..), application)
+import Browser.Navigation as Nav
 import Data.Content as Content exposing (Model)
+import Data.Event as Event
 import Data.Msg exposing (Msg(..))
 import Data.Pages exposing (CurrentPage(..))
 import Html exposing (Html, div, h1, hr, img, span, text)
 import Html.Attributes
 import Json.Decode as Decode exposing (Value)
+import Json.Encode as E
 import Material as Material exposing (inContainer, initMaterialSelects, openSideNav)
 import Pages.Events
 import Pages.Home
@@ -25,17 +27,24 @@ import Views.Navbar
 type alias Model =
     { content : Maybe Content.Model
     , page : CurrentPage
+    , key : Nav.Key
     }
 
 
-init : Browser.Env Value -> ( Model, Cmd Msg )
-init { url, flags } =
-    setRoute (Route.fromUrl url) (Model Nothing Blank)
+init : flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    Model Nothing Blank key
+        |> setRoute (Route.fromUrl url)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model.page ) of
+        ( SetContent (Just content), Events ) ->
+            ( { model | content = Just content }
+            , Ports.loadMap (Content.mapInfoEncoder content)
+            )
+
         ( SetContent content, _ ) ->
             case content of
                 Nothing ->
@@ -52,9 +61,6 @@ update msg model =
         ( OpenSideNav, _ ) ->
             ( model, openSideNav () )
 
-        ( EventsMsg eventMsg, Events ) ->
-            ( model, Cmd.none )
-
         ( HomeMsg homeMsg, Home ) ->
             ( model, Pages.Home.update homeMsg |> Cmd.map HomeMsg )
 
@@ -65,6 +71,14 @@ update msg model =
             in
             ( { model | page = Rsvp newRsvpModel }
             , Cmd.map RsvpMsg cmd
+            )
+
+        ( LeaveSite externalUrl, _ ) ->
+            ( model, Nav.load externalUrl )
+
+        ( ChangePage url, _ ) ->
+            ( model
+            , Nav.pushUrl model.key (Url.toString url)
             )
 
         ( _, _ ) ->
@@ -84,13 +98,19 @@ setRoute maybeRoute model =
                     ( { model | page = Home }, Cmd.none )
 
                 Route.Events ->
-                    ( { model | page = Events }, Cmd.none )
+                    ( { model | page = Events }
+                    , case model.content of
+                        Just content ->
+                            Ports.loadMap (Content.mapInfoEncoder content)
+
+                        Nothing ->
+                            Cmd.none
+                    )
 
                 Route.Travel ->
                     ( { model | page = Travel }, Cmd.none )
 
                 Route.Rsvp ->
-                    --( { model | page = Rsvp Pages.Rsvp.initialModel }, Cmd.none )
                     ( { model | page = Rsvp Pages.Rsvp.initialModel }, initMaterialSelects "all" )
 
                 Route.Party ->
@@ -100,9 +120,39 @@ setRoute maybeRoute model =
                     ( { model | page = Registry }, Cmd.none )
 
 
-view : Model -> Page Msg
+titleForPage : CurrentPage -> String
+titleForPage currentPage =
+    case currentPage of
+        Blank ->
+            "Secret blank page"
+
+        Home ->
+            "Home"
+
+        Events ->
+            "Events"
+
+        Party ->
+            "Party"
+
+        Registry ->
+            "Registry"
+
+        Rsvp _ ->
+            "Rsvp"
+
+        Travel ->
+            "Travel"
+
+        NotFound ->
+            "Secret 404 page"
+
+
+view : Model -> Document Msg
 view model =
-    Page "Some title" <| [ viewHtml model ]
+    Document
+        (titleForPage model.page)
+        [ viewHtml model ]
 
 
 viewHtml : Model -> Html Msg
@@ -133,7 +183,6 @@ viewPageContent page content =
 
         ( Events, Just context ) ->
             Pages.Events.view context.events
-                |> Html.map EventsMsg
 
         ( Rsvp rsvpModel, _ ) ->
             Html.map RsvpMsg <| Pages.Rsvp.view rsvpModel
@@ -150,17 +199,28 @@ viewPageContent page content =
 
 main : Program Value Model Msg
 main =
-    Browser.fullscreen
+    application
         { init = init
-        , onNavigation = Just onNavigation
-        , subscriptions = subscriptions
-        , update = update
         , view = view
+        , update = update
+        , subscriptions = subscriptions
+        , onUrlRequest = onUrlRequest
+        , onUrlChange = onUrlChange
         }
 
 
-onNavigation : Url -> Msg
-onNavigation url =
+onUrlRequest : UrlRequest -> Msg
+onUrlRequest request =
+    case request of
+        Internal url ->
+            ChangePage url
+
+        External url ->
+            LeaveSite url
+
+
+onUrlChange : Url -> Msg
+onUrlChange url =
     SetRoute (Route.fromUrl url)
 
 

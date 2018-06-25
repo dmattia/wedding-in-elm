@@ -7,6 +7,9 @@ BINARY = ./bin/elm
 production:
 	rm -rf elm-stuff && $(BINARY) make --output=$(OUTPUT_FILE) --optimize $(MAIN_FILE)
 
+debug:
+	rm -rf elm-stuff && $(BINARY) make --output=$(OUTPUT_FILE) --debug $(MAIN_FILE)
+
 dev:
 	rm -rf elm-stuff && $(BINARY) make --output=$(OUTPUT_FILE) $(MAIN_FILE)
   

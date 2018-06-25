@@ -8,7 +8,8 @@ const startMaterial = ports => {
   });
 
   ports.initMaterialSelects.subscribe(text => {
-    getInitializedMaterialComponent('select', M.FormSelect);
+    const init = () => getInitializedMaterialComponent('select', M.FormSelect);
+    window.requestAnimationFrame(init);
   });
 
   ports.toast.subscribe(html => {
